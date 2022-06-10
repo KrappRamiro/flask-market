@@ -1,7 +1,7 @@
 from market import app
 from flask import flash, render_template, redirect, url_for
 from market.models import User, Item
-from market.forms import RegisterForm
+from market.forms import RegisterForm, LoginForm
 from market import db
 
 
@@ -23,7 +23,7 @@ def register_page():
     if form.validate_on_submit():
         user_to_create = User(username=form.username.data,
                               email=form.email.data,
-                              password_hash=form.password_1.data)
+                              password=form.password_1.data)  # i think this calls the @property password and the setter in models.py
         db.session.add(user_to_create)
         db.session.commit()
         return redirect(url_for('market_page'))
@@ -32,3 +32,8 @@ def register_page():
             flash(
                 f'There was an error, with creating an user: {err_msg}', category='danger')
     return render_template('register.html', form=form)
+
+@app.route('/login/', methods=['GET', 'POST'])
+def login_page():
+    form = LoginForm()
+    return render_template('login.html', form=form)
