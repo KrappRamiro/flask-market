@@ -3,7 +3,7 @@ from flask import flash, render_template, redirect, url_for
 from market.models import User, Item
 from market.forms import RegisterForm, LoginForm
 from market import db
-from flask_login import login_user
+from flask_login import login_user, logout_user
 
 
 @app.route('/')
@@ -37,17 +37,23 @@ def register_page():
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login_page():
-    form = LoginForm()
+    form = LoginForm() #Consigo mi form de forms.py
     if form.validate_on_submit():  # validate_on_submit validates that all the info is valid
         # Verify if the users exists
         attempted_user = User.query.filter_by(username = form.username.data).first()
         # Get the user that is equal to the username in the form
         # AND if the user exists, verify that the password is correct
         if attempted_user and attempted_user.check_password_correction(attempted_password=form.password.data):
-            login_user(attempted_user)
+            login_user(attempted_user) #Se loggea al usuario usando el modulo flask_login
             flash(
                 f"Hello {attempted_user.username}! You are logged in!", category='success')
             return redirect(url_for('market_page'))
         else:
             flash('Username and Password do not match. Please try again', category='danger')
     return render_template('login.html', form=form)
+
+@app.route('/logout/')
+def logout_page():
+    logout_user() #Esto es parte de flask_login, funciona porque declare en __init__.py que se use flask_login
+    flash("Successfully logged out!", category='info')
+    return redirect(url_for('home_page'))

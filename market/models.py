@@ -19,6 +19,15 @@ class User(db.Model, UserMixin):
     items = db.relationship('Item', backref='owned_user', lazy=True)
 
     @property
+    def prettier_budget(self):
+        if len(str(self.budget)) > 4:
+            return f"${self.budget // 1000}K"
+        elif len(str(self.budget)) > 7:
+            return f"${self.budget // 1000000}M"
+        else:
+            return f"${self.budget}"
+
+    @property
     def password(self):
         print("Creating a password the unsafe way: via plain text :(")
         return self.password
