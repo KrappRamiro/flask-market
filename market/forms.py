@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, IntegerField
 from wtforms.validators import Length, Email, DataRequired, EqualTo, ValidationError
 from market.models import User
 
@@ -43,3 +43,12 @@ class PurchaseItemForm(FlaskForm):
 class SellItemForm(FlaskForm):
     # The big red button that appears in the modal has the value of the label, crazy, isn't it?
     submit = SubmitField(label='Sell item!')
+
+
+class AddItemForm(FlaskForm):
+    name = StringField(label='Name:', validators=[DataRequired()])
+    price = IntegerField(label='Price:', validators=[DataRequired()])
+    description = StringField(label='Description:',
+                              validators=[DataRequired()])
+    barcode = StringField(label='Barcode:', validators=[DataRequired()])
+    submit = SubmitField(label='Add item!')

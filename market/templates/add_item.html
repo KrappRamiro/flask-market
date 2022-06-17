@@ -1,0 +1,16 @@
+{%extends 'base.html'%} {%block title%}Home Page{%endblock%} {%block content%}
+
+<body class="text-center">
+	<form method="post">
+		{{form.hidden_tag()}}
+		<h1>Please add an item</h1>
+		{{form.name.label()}} {{form.name(class="form-control", placeholder="Write your item name here")}}
+		{{form.description.label()}} {{form.description(class="form-control", placeholder="Write your item description here")}}
+		{{form.price.label()}} {{form.price(class="form-control", placeholder="Write your item price here")}}
+		{{form.barcode.label()}} {{form.barcode(class="form-control", placeholder="Write your item barcode here")}}
+		<br>
+		{{form.submit(class="btn btn-lg btn-block btn-primary")}}
+	</form>
+</body>
+
+{%endblock%}

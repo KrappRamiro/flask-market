@@ -13,16 +13,18 @@ block content %}
 			/>
 			<h1 class="h3 mb-3 font-weight-normal">Please Create your Account</h1>
 
-			{{ form.username.label() }} {{ form.username(class="form-control",
+			{{ form.username.label() }} 
+			{{ form.username(class="form-control",
 			placeholder="Write your Username here") }}
 			
-			{{ form.email.label() }} {{form.email(class="form-control", placeholder="Write your Email Adress
-			here") }}
-			{{ form.password_1.label() }} {{
-			form.password_1(class="form-control", placeholder="Write your Password
-			here") }} {{ form.password_2.label() }} {{
-			form.password_2(class="form-control", placeholder="Write your Confirm
-			Password here") }}
+			{{ form.email.label() }} 
+			{{form.email(class="form-control", placeholder="Write your Email Adress here")}}
+
+			{{ form.password_1.label() }} 
+			{{ form.password_1(class="form-control", placeholder="Write your Password here")}}
+			
+			{{ form.password_2.label() }} 
+			{{ form.password_2(class="form-control", placeholder="Write your Confirm Password here")}}
 			<br />
 			<div class="checkbox mb-3">
 				<h6>Already have an account?</h6>

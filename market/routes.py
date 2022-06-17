@@ -1,7 +1,7 @@
 from market import app
 from flask import flash, render_template, redirect, url_for, request
 from market.models import User, Item
-from market.forms import RegisterForm, LoginForm, PurchaseItemForm, SellItemForm
+from market.forms import AddItemForm, RegisterForm, LoginForm, PurchaseItemForm, SellItemForm
 from market import db
 from flask_login import login_user, logout_user, login_required, current_user
 
@@ -30,7 +30,7 @@ def market_page():
             if current_user.can_purchase(purc_item_object):
                 purc_item_object.assign_ownership(current_user)
                 flash(
-                    "Congratulations, you purchased {purc_item_object.name} for ${purc_item_object.price}", category='success')
+                    f"Congratulations, you purchased {purc_item_object.name} for ${purc_item_object.price}", category='success')
             else:
                 flash(
                     f"You do not have enough money to purchase {purc_item_object.name}", category='danger')
@@ -49,7 +49,7 @@ def market_page():
                 print("The user can sell the item")
                 sold_item_object.sell(current_user)
                 flash(
-                    "Congratulations, you sold {sold_item_object.name} for ${sold_item_object.price}!", category="success")
+                    f"Congratulations, you sold {sold_item_object.name} for ${sold_item_object.price}!", category="success")
             else:
                 flash(
                     f"Something went wrong with selling {sold_item_object.name}", category='danger')
@@ -108,3 +108,23 @@ def logout_page():
     logout_user()  # Esto es parte de flask_login, funciona porque declare en __init__.py que se use flask_login
     flash("Successfully logged out!", category='info')
     return redirect(url_for('home_page'))
+
+
+@app.route('/add_item/', methods=['GET', 'POST'])
+def add_item_page():
+    form = AddItemForm()
+    if form.validate_on_submit():
+        item_to_create = Item(name=form.name.data,
+                              price=form.price.data,
+                              description=form.description.data,
+                              barcode = form.barcode.data)
+        db.session.add(item_to_create)
+        db.session.commit()
+        flash(
+            f"Item {item_to_create.name} created succesfully!", category='success')
+        return redirect(url_for('add_item_page'))
+    if form.errors != {}:  # If there are errors from the validations
+        for err_msg in form.errors.values():
+            flash(
+                f'There was an error, with creating an item: {err_msg}', category='danger')
+    return render_template('add_item.html', form=form)
