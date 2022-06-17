@@ -1,9 +1,9 @@
 from market import app
-from flask import flash, render_template, redirect, url_for
+from flask import flash, render_template, redirect, url_for, request
 from market.models import User, Item
-from market.forms import RegisterForm, LoginForm
+from market.forms import RegisterForm, LoginForm, PurchaseItemForm
 from market import db
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 
 
 @app.route('/')
@@ -12,11 +12,31 @@ def home_page():
     return render_template('home.html')
 
 
-@app.route('/market/')
+@app.route('/market/', methods=['GET', 'POST'])
 @login_required  # This is from flask_login, its configured in __init__.py
 def market_page():
-    items = Item.query.all()
-    return render_template('market.html', items=items)
+    # We need to pass this to the template because we need to access the information in the modal
+    purchase_form = PurchaseItemForm()
+    # When someone purchases an item, this happens
+    # It gets the item, and it assigns it to the owner
+    if request.method == "POST":
+        # Este es el nombre que conseguimos del form
+        purchased_item = request.form.get('purchased_item')
+        # Este es un item de la base de datos
+        purc_item_object = Item.query.filter_by(name=purchased_item).first()
+        if purc_item_object:  # If the object is not None
+            if current_user.can_purchase(purc_item_object):
+                purc_item_object.assign_ownership(current_user)
+                flash(
+                    "Congratulations, you purchased {purc_item_object.name} for ${purc_item_object.price}")
+            else:
+                flash(
+                    f"You do not have enough money to purchase {purc_item_object.name}", category='danger')
+        return redirect(url_for('market_page'))
+
+    if request.method == "GET":
+        items = Item.query.filter_by(owner=None)
+        return render_template('market.html', items=items, purchase_form=purchase_form)
 
 
 @app.route('/register/', methods=['GET', 'POST'])
