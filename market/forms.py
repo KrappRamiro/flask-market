@@ -7,14 +7,17 @@ from market.models import User
 class RegisterForm(FlaskForm):
 
     # Si o si tiene que empezar con validate_ asi funciona automaticamente
-    def validate_username(self, username_to_check): 
+    def validate_username(self, username_to_check):
         user = User.query.filter_by(username=username_to_check.data).first()
         if user:
-            raise ValidationError('Username already exists! Please try a different username')
+            raise ValidationError(
+                'Username already exists! Please try a different username')
+
     def validate_email(self, email_to_check):
         user = User.query.filter_by(email=email_to_check.data).first()
         if user:
-            raise ValidationError('Email already exists! Please try a different email')
+            raise ValidationError(
+                'Email already exists! Please try a different email')
 
     username = StringField(label='Username:', validators=[
                            Length(min=2, max=30), DataRequired()])
@@ -26,13 +29,17 @@ class RegisterForm(FlaskForm):
                                EqualTo('password_1'), DataRequired()])
     submit = SubmitField(label='Create Account')
 
+
 class LoginForm(FlaskForm):
     username = StringField(label='Username:', validators=[DataRequired()])
     password = PasswordField(label='Password:', validators=[DataRequired()])
     submit = SubmitField(label='Sign In')
 
+
 class PurchaseItemForm(FlaskForm):
-    submit = SubmitField(label='Purchase item')
+    submit = SubmitField(label='Purchase item!')
+
 
 class SellItemForm(FlaskForm):
-    submit = SubmitField(label='Sell item')
+    # The big red button that appears in the modal has the value of the label, crazy, isn't it?
+    submit = SubmitField(label='Sell item!')

@@ -1,7 +1,7 @@
 from market import app
 from flask import flash, render_template, redirect, url_for, request
 from market.models import User, Item
-from market.forms import RegisterForm, LoginForm, PurchaseItemForm
+from market.forms import RegisterForm, LoginForm, PurchaseItemForm, SellItemForm
 from market import db
 from flask_login import login_user, logout_user, login_required, current_user
 
@@ -17,9 +17,11 @@ def home_page():
 def market_page():
     # We need to pass this to the template because we need to access the information in the modal
     purchase_form = PurchaseItemForm()
+    selling_form = SellItemForm()
     # When someone purchases an item, this happens
     # It gets the item, and it assigns it to the owner
     if request.method == "POST":
+        # ---- Start of Purchase Item Logic ---------------------------------------------------
         # Este es el nombre que conseguimos del form
         purchased_item = request.form.get('purchased_item')
         # Este es un item de la base de datos
@@ -28,15 +30,36 @@ def market_page():
             if current_user.can_purchase(purc_item_object):
                 purc_item_object.assign_ownership(current_user)
                 flash(
-                    "Congratulations, you purchased {purc_item_object.name} for ${purc_item_object.price}")
+                    "Congratulations, you purchased {purc_item_object.name} for ${purc_item_object.price}", category='success')
             else:
                 flash(
                     f"You do not have enough money to purchase {purc_item_object.name}", category='danger')
+        # ---- End of Purchase Item Logic -------------------------------------------------------
+
+        # --- Start of Sell item logic ----------------------------------------------------------
+        # Este es el nombre que conseguimos del form
+        sold_item = request.form.get('sold_item')
+        # Este es un item de la base de datos
+        print(f"Looking for item: {sold_item}")
+        sold_item_object = Item.query.filter_by(name=sold_item).first()
+        print(f"got {sold_item_object}")
+        if sold_item_object:  # If the object is not None
+            print("The object is not None")
+            if current_user.can_sell(sold_item_object):
+                print("The user can sell the item")
+                sold_item_object.sell(current_user)
+                flash(
+                    "Congratulations, you sold {sold_item_object.name} for ${sold_item_object.price}!", category="success")
+            else:
+                flash(
+                    f"Something went wrong with selling {sold_item_object.name}", category='danger')
+        # --- End of Sell item logic --------------------------------------------------------------
         return redirect(url_for('market_page'))
 
     if request.method == "GET":
         items = Item.query.filter_by(owner=None)
-        return render_template('market.html', items=items, purchase_form=purchase_form)
+        owned_items = Item.query.filter_by(owner=current_user.id)
+        return render_template('market.html', items=items, purchase_form=purchase_form, owned_items=owned_items, selling_form=selling_form)
 
 
 @app.route('/register/', methods=['GET', 'POST'])
