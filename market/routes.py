@@ -111,6 +111,7 @@ def logout_page():
 
 
 @app.route('/add_item/', methods=['GET', 'POST'])
+@login_required
 def add_item_page():
     form = AddItemForm()
     if form.validate_on_submit():
